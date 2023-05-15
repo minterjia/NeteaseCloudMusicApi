@@ -6,5 +6,3 @@ async function start() {
   })
 }
 start()
-
-res.setHeader('Access-Control-Allow-Origin', 'https://smusic.butterfly.top')
