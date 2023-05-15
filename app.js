@@ -6,3 +6,6 @@ async function start() {
   })
 }
 start()
+
+res.setHeader('Content-Type', 'application/json;charset=utf-8')
+res.setHeader('Access-Control-Allow-Origin', 'https://smusic.butterfly.top')
