@@ -7,4 +7,4 @@ async function start() {
 }
 start()
 
-Header('Access-Control-Allow-Origin', 'https://smusic.butterfly.top')
+res.setHeader('Access-Control-Allow-Origin', 'https://smusic.butterfly.top')
