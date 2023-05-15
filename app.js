@@ -5,7 +5,7 @@ async function start() {
     checkVersion: true,
   })
 }
-start();
+start()
 
 var app = express();
 app.all('*', function(req, res, next) {
