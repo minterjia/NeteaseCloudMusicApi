@@ -269,6 +269,7 @@
 251. 曲风-歌单
 252. 曲风-歌手
 253. 私信和通知接口
+254. 回忆坐标
 
 ## 安装
 
@@ -489,9 +490,9 @@ $ sudo docker run -d -p 3000:3000 netease-music-api
 
 不要频繁调登录接口,不然可能会被风控,登录状态还存在就不要重复调登录接口
 
-因网易增加了网易云盾验证,密码登录暂时不要使用,尽量使用短信验证码登录和二维码登录,否则调用某些接口会触发需要验证的错误
+~~因网易增加了网易云盾验证,密码登录暂时不要使用,尽量使用短信验证码登录和二维码登录,否则调用某些接口会触发需要验证的错误~~
 
-#### 1. 手机登录(现在要求验证,暂时绕不过,请使用二维码登录)
+#### 1. 手机登录
 
 **必选参数 :**  
 `phone`: 手机号码
@@ -509,7 +510,7 @@ $ sudo docker run -d -p 3000:3000 netease-music-api
 
 **调用例子 :** `/login/cellphone?phone=xxx&password=yyy` `/login/cellphone?phone=xxx&md5_password=yyy` `/login/cellphone?phone=xxx&captcha=1234`
 
-#### 2. 邮箱登录(现在要求验证,暂时绕不过,请使用二维码登录)
+#### 2. 邮箱登录
 
 **必选参数 :**
 
@@ -1062,11 +1063,11 @@ tags: 歌单标签
 
 ### 分享文本、歌曲、歌单、mv、电台、电台节目到动态
 
-说明 : 登录后调用此接口 ,可以分享文本、歌曲、歌单、mv、电台、电台节目到动态
+说明 : 登录后调用此接口 ,可以分享文本、歌曲、歌单、mv、电台、电台节目,专辑到动态
 
 **必选参数 :** `id` : 资源 id （歌曲，歌单，mv，电台，电台节目对应 id）
 
-**可选参数 :** `type`: 资源类型，默认歌曲 song，可传 `song`,`playlist`,`mv`,`djradio`,`djprogram`
+**可选参数 :** `type`: 资源类型，默认歌曲 song，可传 `song`,`playlist`,`mv`,`djradio`,`djprogram`, `album`
 
 `msg`: 内容，140 字限制，支持 emoji，@用户名（`/user/follows`接口获取的用户名，用户名后和内容应该有空格），图片暂不支持
 
@@ -1257,7 +1258,13 @@ tags: 歌单标签
 
 ### 收藏的歌手列表
 
-说明 : 调用此接口,可获取收藏的歌手列表
+说明 : 调用此接口,可获取收藏的歌手列表  
+
+**可选参数 :**
+
+`limit`: 取出歌单数量 , 默认为 25
+
+`offset`: 偏移数量 , 用于分页 , 如 :( 评论页数 -1)\*25, 其中 25 为 limit 的值
 
 **接口地址 :** `/artist/sublist`
 
@@ -2196,6 +2203,7 @@ tags: 歌单标签
 **调用例子 :** `/song/detail?ids=347230`,`/song/detail?ids=347230,347231`
 
 返回字段说明(感谢 [@tuxzz](https://github.com/Binaryify/NeteaseCloudMusicApi/issues/1121#issuecomment-774438040) 整理):
+
 ```
 name: String, 歌曲标题
 id: u64, 歌曲ID
@@ -2239,7 +2247,7 @@ sq: Option<Quality>, 无损质量文件信息
 h: Option<Quality>, 高质量文件信息
 m: Option<Quality>, 中质量文件信息
 l: Option<Quality>, 低质量文件信息
-a: Option<?>, 常为None, 功能未知
+a: Option<未知>, 常为None, 功能未知
 cd: Option<String>, None或如"04", "1/2", "3", "null"的字符串，表示歌曲属于专辑中第几张CD，对应音频文件的Tag
 no: u32, 表示歌曲属于CD中第几曲，0表示没有这个字段，对应音频文件的Tag
 rtUrl: Option<String(?)>, 常为None, 功能未知
@@ -2258,7 +2266,7 @@ originSongSimpleData: Option<SongSimpleData>, 对于翻唱曲，可选提供原�
 single: enum,
   0: 有专辑信息或者是DJ节目
   1: 未知专辑
-noCopyrightRcmd: Option<NoCopyrightRcmd>, None表示可以播，非空表示无版权
+noCopyrightRcmd: Option<NoCopyrightRcmd>, 不能判断出歌曲有无版权
 mv: u64, 非零表示有MV ID
 rtype: 常为0，功能未知
 rurl: Option<String(?)>, 常为None，功能未知
@@ -3847,9 +3855,24 @@ type='1009' 获取其 id, 如`/search?keywords= 代码时间 &type=1009`
 
 说明: 登录后调用此接口，可获取当前 VIP 信息。
 
+**可选参数 :** `uid` : 用户 id
+
 **接口地址 :** `/vip/info`
 
-**调用例子 :** `/vip/info`
+**调用例子 :** `/vip/info`, `/vip/info?uid=32953014`
+
+
+### 获取 VIP 信息(app端)
+
+说明: 登录后调用此接口，可获取当前 VIP 信息。
+
+**可选参数 :** `uid` : 用户 id
+
+**接口地址 :** `/vip/info/v2`
+
+**调用例子 :** `/vip/info/v2`, `/vip/info/v2?uid=32953014`
+
+
 
 ### 音乐人签到
 
@@ -4119,6 +4142,22 @@ type='1009' 获取其 id, 如`/search?keywords= 代码时间 &type=1009`
 说明: 调用此接口可以获取首页推荐的星评馆评论信息
 
 **接口地址:** `/starpick/comments/summary`
+
+### 私人 DJ
+
+说明: 调用此接口可以获取私人 DJ 的推荐内容 (包括 DJ 声音和推荐歌曲)
+
+**接口地址:** `/aidj/content/rcmd`
+
+**可选参数：** `longitude` `latitude` : 当前的经纬度
+
+### 回忆坐标
+
+说明: 可以获取当前歌曲的回忆坐标信息 (见手机 APP 百科页的回忆坐标功能)
+
+**接口地址:** `/music/first/listen/info`
+
+**必选参数：** `id` : 歌曲 ID
 
 ## 离线访问此文档
 
